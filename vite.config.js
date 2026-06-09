@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     root: 'src',
-    base: basePrefix, // 動的に切り替え
+    base: basePrefix, 
     server: {
       open: true, 
       port: 2222,
@@ -23,6 +23,8 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: '../public',
       minify: 'esbuild',
+      // ★ ここを追加：0にすることで、どんなに小さな画像でもDataURL（base64）に変換するのを禁止します
+      assetsInlineLimit: 0, 
       rollupOptions: {
         input: {
           main: 'src/index.html',
