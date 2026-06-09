@@ -1,0 +1,92 @@
+:root {
+  --size: clamp(40px, 4vw, 80px);
+  --lot: 10;
+  --margin: 1vw;
+}
+.sns {
+  text-align: center;
+  padding-bottom: clamp(50px, 12vw, 100px);
+
+}
+.sns-links {
+  display: inline-flex;
+  align-items: center;
+  /* gap: 16px; */
+  list-style: none;
+/* 
+    display: flex;
+  list-style: none;
+  width: max-content;
+  height: max-content;
+  margin: auto;
+  justify-content: center; 
+  border-radius: 10px;
+  transition: width .3s 0s ease;
+  inset: 0; */
+}
+.sns-link {
+  display: grid;
+  place-items: center;
+  width: var(--size);
+  height: var(--size);
+  position: relative;
+  background-position: 50% 50%;
+  background-size: 84% 84%;
+  background-repeat: no-repeat;
+  background-color: rgba(0,0,0,.8);
+  text-align: center;
+  line-height: var(--size);
+  cursor: default;
+  user-select: none;
+  color: #fff;
+  transform-origin: 50% 100%;
+  transition-property: transform, margin, opacity;
+  transition-duration: .3s;
+  transition-timing-function: ease;
+  box-sizing: content-box;
+  margin-inline: var(--margin);
+  transform-origin: 50% 100%;
+  border-radius: .5vw;
+  overflow: hidden;
+  text-indent: 100px;
+  white-space: nowrap;
+  opacity: 0.8;
+  cursor: pointer;
+}
+@media (prefers-color-scheme: dark) {
+  .sns-link {
+    background-color: rgba(255,255,255,.2);
+  }
+}
+.sns-link:hover {
+  opacity: 1;
+  transform: scale(1.3);
+  margin-inline: 2vw;
+}
+.sns-link:has(+.sns-link:hover),
+.sns-link:hover + .sns-link {
+  transform: scale(1.4);
+}
+.sns-link:has(+.sns-link:hover),
+.sns-link:hover + .sns-link{
+  transform: scale(1);
+}
+.sns-link:hover + .sns-link {
+  margin-inline: var(--margin) 1vw;
+}
+.sns-link:hover + .sns-link + .sns-link{
+  margin-inline: var(--margin) .5vw;
+}
+.sns-link:has(+.sns-link:hover) {
+  margin-inline: 1vw var(--margin);
+}
+.sns-link:has(+.sns-link + .sns-link:hover){
+  margin-inline: .5vw var(--margin);
+}
+.sns-link.icon-x { background-image: url('../img/icon_x.svg'); }
+.sns-link.icon-yt { background-image: url('../img/icon_yt.svg'); }
+.sns-link.icon-ig { background-image: url('../img/icon_ig.svg'); }
+/* .sns-link:hover { transform: translateY(-1px); background-color: rgba(255,255,255,.16); background-size: 84% 84%; } */
+@media (max-width: 720px) {
+  .sns-link { width: calc(var(--size) / 1.1); height: calc(var(--size) / 1.2); font-size: .625rem; }
+}

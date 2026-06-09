@@ -1,0 +1,96 @@
+# ==============================================================================
+# 1. 依存関係 & パッケージマネージャー (npm, yarn, pnpm, bun)
+# ==============================================================================
+node_modules/
+.pnpm-store/
+.yarn/
+!.yarn/patches/
+!.yarn/plugins/
+!.yarn/releases/
+!.yarn/sdks/
+
+# Bun のキャッシュ
+.bun/
+
+# ==============================================================================
+# 2. ビルド生成物 (Vite, Next.js, Nuxt などの出力)
+# ==============================================================================
+dist/
+out/
+.next/
+.nuxt/
+.output/
+
+# あなたの設定のように、ビルド先を public 等にしている場合
+# (環境に合わせて調整してください)
+# public/bundle.js
+
+# ==============================================================================
+# 3. 環境変数・秘密情報（絶対にコミットしない）
+# ==============================================================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# バックアップや暗号化キー
+*.local
+*.p8
+*.pem
+
+# ==============================================================================
+# 4. ログ・キャッシュ・一時ファイル
+# ==============================================================================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 各種ツールのキャッシュ（linter, formatter, bundler 等）
+.eslintcache
+.stylelintcache
+.prettiercache
+.biome/cache/
+.vite/
+.parcel-cache
+.turbo/
+
+# ==============================================================================
+# 5. テスト・カバレッジ
+# ==============================================================================
+coverage/
+.nyc_output/
+# Playwright / Cypress
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# ==============================================================================
+# 6. エディタ・OS固有のファイル（チーム開発での衝突を防ぐ）
+# ==============================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# VS Code (個人設定は除外し、共有タスクや推奨拡張機能だけ残す場合)
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+
+# JetBrains (WebStorm, IntelliJ)
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
