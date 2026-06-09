@@ -5,7 +5,7 @@ import htmlMinifier from 'rollup-plugin-html-minifier'; // HTML圧縮用
 export default defineConfig(({ mode }) => {
   return {
     root: 'src',
-    base: '',
+    base: '/',
     server: {
       open: true, 
       port: 2222,
