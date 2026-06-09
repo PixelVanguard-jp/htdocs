@@ -3,9 +3,13 @@ import { terser } from 'rollup-plugin-terser'; // JS圧縮・難読化用
 import htmlMinifier from 'rollup-plugin-html-minifier'; // HTML圧縮用
 
 export default defineConfig(({ mode }) => {
+  // 本番ビルド（production）の時だけ絶対パスにし、開発時は '/' にする
+  const isProd = mode === 'production';
+  const basePrefix = isProd ? 'https://pixelvanguard.jp/' : '/';
+
   return {
     root: 'src',
-    base: '/',
+    base: basePrefix, // 動的に切り替え
     server: {
       open: true, 
       port: 2222,
