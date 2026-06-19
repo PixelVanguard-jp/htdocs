@@ -3,21 +3,18 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.m
 
 const CONFIG = {
     text: 'Pixel\nVanguard',
-    // For two lines, use either an array or \n. Example: ['TEST', 'SITE']
-    // text: ['TEST', 'SITE'],
     fontFamily: 'Inter, Arial Black, Helvetica, sans-serif',
     particleGap: 4,
     particleSize: 2.7,
     lineGap: 0.88,
     maxTextWidthRatio: 0.82,
-    y: 'auto', // 'auto' or number. Example: -80 moves particle text upward.
+    y: 'auto', 
     autoYRatio: 0.37,
     mouseBreakRadius: 180,
     mouseBreakPower: 210,
     scrollBreakPower: 520,
     tapPulsePower: 360,
     colors: {
-        // Hero is intentionally darkened even in light mode, so use luminous particles for readability.
         lightA: '#f8fbff',
         lightB: '#8ee8ff',
         darkA: '#65d7ff',
@@ -28,13 +25,10 @@ const CONFIG = {
     autoSlideIntervalSeconds: 5
 };
 
-// type: 'image' | 'video' | 'youtube' | 'empty'
-// local files are also OK, e.g. src: './assets/hero.mp4'
 const MEDIA_ITEMS = [
     { type: 'empty' },
     { type: 'video', src: '/img/hero/Hero__1.mp4' },
     { type: 'image', src: '/img/hero/Hero__3.jpg', alt: '' },
-    // { type: 'youtube', id: 'dQw4w9WgXcQ' }
 ];
 
 const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
@@ -54,6 +48,9 @@ let startTime = performance.now();
 let resizeTimer;
 let mediaIndex = 0;
 let autoSlideTimer;
+
+// ★ バグ修正用：ドットクリックによるアニメーション移動中かを判別するフラグ
+let isAnimatingToMedia = false; 
 
 function normalizeLines(text) {
     return Array.isArray(text) ? text : String(text).split('\n');
@@ -320,13 +317,19 @@ function updateMediaDots(index) {
     [...nav.children].forEach((dot, i) => dot.setAttribute('aria-current', i === index ? 'true' : 'false'));
 }
 
+// ★ 修正：スクロール位置によるドット連動を強制制御
 function goToMedia(index, userDriven = false) {
     const stage = document.getElementById('mediaStage');
     if (!stage || !stage.children.length) return;
     const total = stage.children.length;
     mediaIndex = (index + total) % total;
-    stage.scrollTo({ left: mediaIndex * stage.clientWidth, behavior: 'smooth' });
+
+    // 意図的なドット切り替え中は、scrollイベントでの連動を無視する
+    isAnimatingToMedia = true; 
     updateMediaDots(mediaIndex);
+
+    stage.scrollTo({ left: mediaIndex * stage.clientWidth, behavior: 'smooth' });
+    
     if (userDriven) restartAutoSlide();
 }
 
@@ -355,12 +358,34 @@ function initMedia() {
         nav.appendChild(dot);
     });
     if (items.length <= 1) nav.hidden = true;
+
+    // ★ 修正：自動スクロール中（あるいはクリック直後）のチラつきを防止
     stage.addEventListener('scroll', () => {
-        const index = Math.round(stage.scrollLeft / Math.max(1, stage.clientWidth));
-        mediaIndex = Math.max(0, Math.min(index, items.length - 1));
-        updateMediaDots(mediaIndex);
+        const currentScrollLeft = stage.scrollLeft;
+        const targetScrollLeft = mediaIndex * stage.clientWidth;
+
+        // ドットクリック等の自動移動中かつ、目的地にほぼ到着するまではスクロール側の発火をスルーする
+        if (isAnimatingToMedia) {
+            if (Math.abs(currentScrollLeft - targetScrollLeft) < 5) {
+                isAnimatingToMedia = false; // 到着したのでフラグ解除
+            }
+            return;
+        }
+
+        // ユーザーが手動でスワイプした時のみリアルタイムでドットを切り替える
+        const index = Math.round(currentScrollLeft / Math.max(1, stage.clientWidth));
+        const nextIndex = Math.max(0, Math.min(index, items.length - 1));
+        if (mediaIndex !== nextIndex) {
+            mediaIndex = nextIndex;
+            updateMediaDots(mediaIndex);
+        }
     }, { passive: true });
-    stage.addEventListener('pointerdown', restartAutoSlide, { passive: true });
+
+    stage.addEventListener('pointerdown', () => {
+        isAnimatingToMedia = false; // ユーザーが触ったらアニメーション割り込みを許可
+        restartAutoSlide();
+    }, { passive: true });
+    
     restartAutoSlide();
 }
 
@@ -385,7 +410,6 @@ prefersDark.addEventListener?.('change', rebuild);
 initMedia();
 rebuild();
 requestAnimationFrame(animate);
-
 
 const copyrightYear = document.getElementById("copyrightYear");
 if (copyrightYear) copyrightYear.textContent = String(new Date().getFullYear());
