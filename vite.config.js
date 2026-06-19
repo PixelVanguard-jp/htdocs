@@ -1,15 +1,18 @@
 import { defineConfig } from 'vite';
 import { terser } from 'rollup-plugin-terser'; // JS圧縮・難読化用
 import htmlMinifier from 'rollup-plugin-html-minifier'; // HTML圧縮用
+import path from 'path';
 
 export default defineConfig(({ mode }) => {
-  // 本番ビルド（production）の時だけ絶対パスにし、開発時は '/' にする
   const isProd = mode === 'production';
+  // 本番ビルド時は absolute URL、開発時は '/'
   const basePrefix = isProd ? 'https://pixelvanguard.jp/' : '/';
 
   return {
     root: 'src',
-    base: basePrefix, 
+    base: basePrefix,
+    publicDir: path.resolve(__dirname, 'public'), 
+    
     server: {
       open: true, 
       port: 2222,
@@ -21,13 +24,12 @@ export default defineConfig(({ mode }) => {
       'process.env.NODE_ENV': JSON.stringify(mode),
     },
     build: {
-      outDir: '../public',
+      outDir: '../dist', 
       minify: 'esbuild',
-      // ★ ここを追加：0にすることで、どんなに小さな画像でもDataURL（base64）に変換するのを禁止します
       assetsInlineLimit: 0, 
       rollupOptions: {
         input: {
-          main: 'src/index.html',
+          main: path.resolve(__dirname, 'src/index.html'),
         },
         plugins: [
           terser(),
