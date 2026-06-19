@@ -32,8 +32,8 @@ const CONFIG = {
 // local files are also OK, e.g. src: './assets/hero.mp4'
 const MEDIA_ITEMS = [
     { type: 'empty' },
-    { type: 'video', src: 'assets/hero/Hero_1.mp4' },
-    { type: 'image', src: 'assets/history/History__3.jpg', alt: '' },
+    { type: 'video', src: 'img/hero/Hero__1.mp4' },
+    { type: 'image', src: 'img/hero/Hero__3.jpg', alt: '' },
     // { type: 'youtube', id: 'dQw4w9WgXcQ' }
 ];
 

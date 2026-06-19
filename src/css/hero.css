@@ -140,6 +140,10 @@
   letter-spacing: -.02em;
   font-weight: 900;
   opacity: .85;
+  line-height: 1.5;
+}
+.hero-title span {
+  display: inline-block;
 }
 .lead {
   margin: 22px auto 0;
