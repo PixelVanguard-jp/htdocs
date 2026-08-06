@@ -30,7 +30,7 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         input: {
           main: path.resolve(__dirname, 'src/index.html'),
-          avalon: path.resolve(__dirname, 'src/avalon/index.html'),
+          avalon: path.resolve(__dirname, 'src/avalon_pv/index.html'),
         },
         plugins: [
           terser(),
