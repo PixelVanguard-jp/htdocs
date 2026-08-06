@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+
+<meta name="robots" content="index, follow">
+<meta name="GPTBot" content="noindex, nofollow">
+<meta name="ClaudeBot" content="noindex, nofollow">
+<meta name="Google-Extended" content="noindex, nofollow">
+<meta name="PerplexityBot" content="noindex, nofollow">
+<meta name="CCBot" content="noindex, nofollow">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AVALON PV // FiveM Turf War Server</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,700;0,900;1,700&family=Press+Start+2P&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+  
+  <!-- Three.js & GSAP via CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  
+  <link rel="shortcut icon" href="./img/AVALON_logo.png" type="image/x-icon" />
+  <link rel="apple-touch-icon" href="./img/AVALON_logo.png" />
+  <style>
+    :root {
+      --red-main: #ff0055;
+      --red-glow: rgba(255, 0, 85, 0.4);
+      --blue-main: #00f0ff;
+      --blue-glow: rgba(0, 240, 255, 0.4);
+      --yellow-accent: #ffe600;
+      --bg-dark: #0a0b10;
+      --bg-card: rgba(18, 20, 29, 0.85);
+      --font-pixel: 'Press Start 2P', monospace;
+      --font-cyber: 'Chakra Petch', sans-serif;
+      --font-body: 'Noto Sans JP', sans-serif;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+    
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    body {
+      background-color: var(--bg-dark);
+      color: #ffffff;
+      font-family: var(--font-body);
+      overflow-x: hidden;
+      line-height: 1.6;
+      cursor: default;
+    }
+    
+    .pixel-accent {
+      font-family: var(--font-pixel);
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      color: var(--yellow-accent);
+      text-transform: uppercase;
+      display: inline-block;
+      margin-bottom: 8px;
+      text-shadow: 0 0 8px rgba(255, 230, 0, 0.5);
+      word-break: break-word;
+    }
+    
+    /* WebGL Background Canvas for Light Ambient Particles */
+    #webgl-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+    
+    /* Sticky Header */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 70px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      background: rgba(10, 11, 16, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .logo-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 102;
+    }
+    
+    .logo-mark {
+      width: 32px;
+      height: 32px;
+      background: url(./img/AVALON_logo.png) no-repeat center center / contain;
+      /* clip-path: polygon(0 0, 100% 0, 85% 100%, 0 100%); */
+      flex-shrink: 0;
+    }
+    
+    .logo-text {
+      font-family: var(--font-cyber);
+      font-weight: 900;
+      font-size: 1.3rem;
+      letter-spacing: 1px;
+      font-style: italic;
+      white-space: nowrap;
+    }
+    
+    .nav-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    nav ul {
+      display: flex;
+      list-style: none;
+      gap: 35px;
+    }
+    
+    nav a {
+      color: #ddd;
+      text-decoration: none;
+      font-family: var(--font-cyber);
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: color 0.3s;
+      position: relative;
+    }
+    
+    nav a:hover {
+      color: var(--yellow-accent);
+    }
+    
+    .server-status {
+      font-family: var(--font-cyber);
+      font-size: 0.85rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid var(--blue-main);
+      padding: 6px 16px;
+      border-radius: 4px;
+      color: var(--blue-main);
+      white-space: nowrap;
+    }
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--blue-main);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--blue-main);
+      animation: pulse 1.5s infinite;
+      flex-shrink: 0;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    
+    .hamburger {
+      display: none;
+      width: 36px;
+      height: 36px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      z-index: 102;
+      padding: 6px;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease;
+    }
+    
+    .hamburger:active {
+      transform: scale(0.92);
+    }
+    
+    .hamburger svg {
+      width: 24px;
+      height: 24px;
+      stroke: #ffffff;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+    }
+    
+    .hamburger line {
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, stroke 0.3s ease;
+      transform-origin: center;
+    }
+    
+    .hamburger.active line {
+      stroke: var(--yellow-accent);
+    }
+    
+    .hamburger.active .line-top {
+      transform: translateY(6px) rotate(45deg);
+    }
+    
+    .hamburger.active .line-middle {
+      opacity: 0;
+      transform: scaleX(0);
+    }
+    
+    .hamburger.active .line-bottom {
+      transform: translateY(-6px) rotate(-45deg);
+    }
+    
+    /* Main Section Floating */
+    main {
+      position: relative;
+      z-index: 2;
+    }
+    
+    section {
+      position: relative;
+      width: 100%;
+    }
+    
+    /* ------------------------------------------------------------------ */
+    /* HERO SECTION                                                       */
+    /* ------------------------------------------------------------------ */
+    #hero {
+      height: 100vh;
+      min-height: 600px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 80px 20px 20px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .hero-video-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+      filter: brightness(0.4) contrast(1.1);
+    }
+    
+    .hero-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(10,11,16,0.3) 0%, rgba(10,11,16,0.85) 100%);
+      z-index: -1;
+    }
+    
+    .hero-content {
+      max-width: 1000px;
+      z-index: 2;
+      transform: translateY(0);
+      width: 100%;
+    }
+    
+    .hero-title {
+      font-family: var(--font-cyber);
+      font-size: clamp(2.2rem, 6.5vw, 5.5rem);
+      font-weight: 900;
+      line-height: 1.1;
+      text-transform: uppercase;
+      font-style: italic;
+      letter-spacing: -1px;
+      margin-bottom: 20px;
+      word-break: break-word;
+    }
+    
+    .hero-title .red {
+      color: var(--red-main);
+      text-shadow: 0 0 30px var(--red-glow);
+    }
+    
+    .hero-title .blue {
+      color: var(--blue-main);
+      text-shadow: 0 0 30px var(--blue-glow);
+    }
+    
+    .hero-title .vs {
+      font-size: 0.4em;
+      color: #fff;
+      display: inline-block;
+      margin: 0 15px;
+      vertical-align: middle;
+      font-style: normal;
+    }
+    
+    .hero-desc {
+      font-size: clamp(0.95rem, 1.8vw, 1.3rem);
+      color: #ccc;
+      max-width: 680px;
+      margin: 0 auto 35px;
+      font-weight: 500;
+      padding: 0 10px;
+    }
+    
+    .hero-desc span {
+      display: block;
+      white-space: nowrap;
+    }
+    
+    @media (max-width: 480px) {
+      .hero-desc span {
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+    }
+    
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 42px;
+      background: linear-gradient(135deg, var(--yellow-accent), #ffb700);
+      color: #000;
+      font-family: var(--font-cyber);
+      font-weight: 900;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-radius: 4px;
+      box-shadow: 0 10px 25px rgba(255, 230, 0, 0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .cta-button::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 12px;
+      height: 12px;
+      background: #000;
+      clip-path: polygon(100% 0, 0 0, 100% 100%);
+    }
+    
+    .cta-button:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 15px 35px rgba(255, 230, 0, 0.5);
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* ABOUT SECTION                                                      */
+    /* ------------------------------------------------------------------ */
+    #about {
+      padding: 140px 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .section-header {
+      text-align: center;
+      margin-bottom: 70px;
+    }
+    
+    .section-title {
+      font-family: var(--font-cyber);
+      font-size: clamp(1.8rem, 4vw, 3.2rem);
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      word-break: break-word;
+    }
+    
+    .factions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      width: 100%;
+    }
+    
+    .faction-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 45px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      transition: transform 0.4s ease, border-color 0.4s ease;
+    }
+    
+    .faction-card.red {
+      border-top: 4px solid var(--red-main);
+    }
+    
+    .faction-card.blue {
+      border-top: 4px solid var(--blue-main);
+    }
+    
+    .faction-card:hover {
+      transform: translateY(-8px);
+    }
+    
+    .faction-card.red:hover {
+      border-color: var(--red-main);
+      box-shadow: 0 15px 40px var(--red-glow);
+    }
+    
+    .faction-card.blue:hover {
+      border-color: var(--blue-main);
+      box-shadow: 0 15px 40px var(--blue-glow);
+    }
+    
+    .faction-title {
+      font-family: var(--font-cyber);
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 900;
+      margin-bottom: 15px;
+      word-break: break-word;
+    }
+    
+    .faction-card.red .faction-title { color: var(--red-main); }
+    .faction-card.blue .faction-title { color: var(--blue-main); }
+    
+    .faction-desc {
+      color: #b0b5c0;
+      font-size: 1rem;
+      line-height: 1.8;
+    }
+    
+    /* ------------------------------------------------------------------ */
+    /* HOW TO JOIN SECTION                                                */
+    /* ------------------------------------------------------------------ */
+    #how-to-join {
+      padding: 140px 40px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    
+    .steps-container {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+    
+    .step-card {
+      display: flex;
+      align-items: center;
+      gap: 35px;
+      padding: 35px 40px;
+      background: rgba(18, 20, 29, 0.7);
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: background 0.3s, border-color 0.3s, transform 0.3s;
+    }
+    
+    .step-card:hover {
+      background: rgba(28, 32, 48, 0.9);
+      border-color: var(--yellow-accent);
+      transform: translateX(10px);
+    }
+    
+    .step-card a {
+      color: #fff;
+    }
+    
+    .step-number {
+      font-family: var(--font-pixel);
+      font-size: 1.8rem;
+      color: var(--yellow-accent);
+      min-width: 60px;
+    }
+    
+    .step-info h3 {
+      font-family: var(--font-cyber);
+      font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+      font-weight: 700;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      word-break: break-word;
+    }
+    
+    .step-info p {
+      color: #9aa0a6;
+      font-size: 0.95rem;
+      word-break: break-word;
+    }
+    
+    /* ------------------------------------------------------------------ */
+    /* LINKS SECTION                                                      */
+    /* ------------------------------------------------------------------ */
+    #links {
+      padding: 140px 40px;
+      max-width: 1100px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    
+    .links-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      margin-top: 50px;
+    }
+    
+    .link-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 45px 25px;
+      background: var(--bg-card);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      text-decoration: none;
+      color: #fff;
+      transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+    }
+    
+    .link-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--blue-main);
+      box-shadow: 0 15px 35px rgba(0, 240, 255, 0.2);
+    }
+    
+    .link-icon {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      width: 2.5rem;
+      height: 2.5rem;
+      background-repeat: no-repeat;
+      background-size: contain;
+    }
+    .link-icon--official {
+      background-image: url('../img/PixelVanguard__icon.png');
+    }
+    .link-icon--discord {
+      background-image: url('./img/icon_discord.jpg');
+    }
+    .link-icon--x {
+      background-image: url('./img/icon-x.png');
+    }
+
+    .link-title {
+      font-family: var(--font-cyber);
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      word-break: break-word;
+    }
+    
+    .link-sub {
+      font-size: 0.85rem;
+      color: #888;
+      margin-top: 8px;
+      word-break: break-all;
+    }
+    
+    /* Footer */
+    footer {
+      padding: 50px 40px;
+      text-align: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.85rem;
+      color: #666;
+      background: #06070a;
+    }
+    
+    @media (max-width: 992px) {
+      header {
+        padding: 0 20px;
+      }
+      
+      .hamburger {
+        display: flex;
+      }
+      
+      nav {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 80%;
+        max-width: 320px;
+        height: 100vh;
+        background: rgba(10, 11, 16, 0.95);
+        backdrop-filter: blur(20px);
+        border-left: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: right 0.4s ease;
+        z-index: 101;
+      }
+      
+      nav.active {
+        right: 0;
+      }
+      
+      nav ul {
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+      }
+      
+      nav a {
+        font-size: 1.2rem;
+      }
+      
+      .server-status {
+        font-size: 0.75rem;
+        padding: 4px 10px;
+      }
+      
+      .factions-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .links-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    @media (max-width: 600px) {
+      #about, #how-to-join, #links {
+        padding: 80px 20px;
+      }
+      
+      #trailer {
+        padding: 100px 0;
+      }
+      
+      .faction-card {
+        padding: 30px 20px;
+      }
+      
+      .step-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 25px 20px;
+      }
+      
+      .step-card:hover {
+        transform: translateY(-5px);
+      }
+      
+      .cta-button {
+        padding: 16px 32px;
+        font-size: 1rem;
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+      }
+      
+      .logo-text {
+        font-size: 1.1rem;
+      }
+      
+      .server-status span {
+        display: inline-block;
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <canvas id="webgl-bg"></canvas>
+  
+  <!-- Header -->
+  <header>
+    <div class="logo-group">
+      <div class="logo-mark"></div>
+      <div class="logo-text">AVALON PV</div>
+    </div>
+    
+    <div class="nav-wrapper">
+      <div class="server-status">
+        <div class="status-dot"></div>
+        <span id="player-count">SERVER ONLINE [--/--]</span>
+      </div>
+      
+      <button class="hamburger" id="hamburger-btn" aria-label="Toggle navigation">
+        <svg viewBox="0 0 24 24" fill="none">
+          <line class="line-top" x1="3" y1="6" x2="21" y2="6" />
+          <line class="line-middle" x1="3" y1="12" x2="21" y2="12" />
+          <line class="line-bottom" x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+      
+      <nav id="nav-menu">
+        <ul>
+          <li><a href="#hero" class="nav-link">TOP</a></li>
+          <li><a href="#about" class="nav-link">ABOUT</a></li>
+          <li><a href="#how-to-join" class="nav-link">HOW TO JOIN</a></li>
+          <li><a href="#links" class="nav-link">LINKS</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  
+  <main>
+    <section id="hero">
+      <video class="hero-video-bg" autoplay loop muted playsinline poster="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1920&q=80">
+        <source src="./img/hero.mp4" type="video/mp4">
+      </video>
+      <div class="hero-overlay"></div>
+      
+      <div class="hero-content">
+        <span class="pixel-accent">// FIVEM TURF WAR PROJECT</span>
+        <h1 class="hero-title">
+          <span class="red">EAST SIDE</span>
+          <span class="vs">VS</span>
+          <span class="blue">WEST SIDE</span>
+        </h1>
+        <p class="hero-desc">
+          <span>街を二分する過酷な領域支配戦。</span><span></span>仲間と共にストリートを奪還し、圧倒的支配を築け。</span>
+        </p>
+        <a href="#how-to-join" class="cta-button">
+          <span>JOIN THE BATTLE</span>
+          <span>→</span>
+        </a>
+      </div>
+    </section>
+    
+    <!-- ABOUT SECTION -->
+    <section id="about">
+      <div class="section-header">
+        <span class="pixel-accent">// 01. WORLD & FACTIONS</span>
+        <h2 class="section-title">The Battle That Divided the City</h2>
+      </div>
+      
+      <div class="factions-grid">
+        <!-- Red Faction -->
+        <div class="faction-card red">
+          <span class="pixel-accent" style="color: var(--red-main);">FACTION A</span>
+          <h3 class="faction-title">EAST SIDE</h3>
+          <p class="faction-desc">
+            東側の旧市街・港湾地帯を占拠する武闘派組織。重火器と圧倒的な機動力で街の東半球を完全ロックダウン。力こそが全ての絶対的領域。
+          </p>
+        </div>
+        
+        <!-- Blue Faction -->
+        <div class="faction-card blue">
+          <span class="pixel-accent" style="color: var(--blue-main);">FACTION B</span>
+          <h3 class="faction-title">WEST SIDE</h3>
+          <p class="faction-desc">
+            西側の摩天楼・ビジネス街を支配する先進技術派シンジケート。高度な防衛システムとサイバー戦術を駆使し、スマートに領土拡大を狙う。
+          </p>
+        </div>
+      </div>
+    </section>
+    
+    <!-- HOW TO JOIN SECTION -->
+    <section id="how-to-join">
+      <div class="section-header">
+        <span class="pixel-accent">// 02. GUIDE</span>
+        <h2 class="section-title">HOW TO JOIN</h2>
+      </div>
+      
+      <div class="steps-container">
+        <div class="step-card">
+          <div class="step-number">01</div>
+          <div class="step-info">
+            <h3>INSTALL FIVEM & GTA V</h3>
+            <p>PC版GTA VとFiveMクライアントを事前準備します。</p>
+          </div>
+        </div>
+        
+        <div class="step-card">
+          <div class="step-number">02</div>
+          <div class="step-info">
+            <h3>JOIN DISCORD SERVER</h3>
+            <p><a href="https://discord.gg/sxzTwrMX8a">公式Discord</a>に参加し、ルール同意およびホワイトリスト認証を完了させます。</p>
+          </div>
+        </div>
+        
+        <div class="step-card">
+          <div class="step-number">03</div>
+          <div class="step-info">
+            <h3>CONNECT TO SERVER</h3>
+            <p><a href="https://servers.fivem.net/servers/detail/oqp8gv" target="_blank" rel="noopener">AVALON PV</a>から、もしくはFiveMより `AVALON PV` を検索し参戦！</p>
+          </div>
+        </div>
+        
+        <div class="step-card">
+          <div class="step-number">04</div>
+          <div class="step-info">
+            <h3>SELECT YOUR FACTION</h3>
+            <p>所属する勢力（EAST SIDE または WEST SIDE）を選択し、チームに貢献します。</p>
+          </div>
+        </div>
+        
+      </div>
+    </section>
+    
+    <!-- LINKS SECTION -->
+    <section id="links">
+      <div class="section-header">
+        <span class="pixel-accent">// 03. OFFICIAL LINKS</span>
+        <h2 class="section-title">CONNECT WITH US</h2>
+      </div>
+      
+      <div class="links-grid">
+        <a href="https://pixelvanguard.jp/" class="link-card">
+          <div class="link-icon link-icon--official"></div>
+          <div class="link-title">OFFICIAL WEBSITE</div>
+          <div class="link-sub">pixelvanguard.jp</div>
+        </a>
+        
+        <a href="#" class="link-card">
+          <div class="link-icon link-icon--discord"></div>
+          <div class="link-title">DISCORD COMMUNITY</div>
+          <div class="link-sub">JOIN 150+ PLAYERS</div>
+        </a>
+        
+        <a href="https://x.com/PixelVanguard_X" class="link-card">
+          <div class="link-icon link-icon--x"></div>
+          <div class="link-title">X (TWITTER)</div>
+          <div class="link-sub">@PixelVanguard_X</div>
+        </a>
+      </div>
+    </section>
+  </main>
+  
+  <footer>
+    <p>&copy; 2026 AVALON PV PROJECT. ALL RIGHTS RESERVED.</p>
+  </footer>
+  
+  <script>
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const navMenu = document.getElementById('nav-menu');
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    hamburgerBtn.addEventListener('click', () => {
+      hamburgerBtn.classList.toggle('active');
+      navMenu.classList.toggle('active');
+    });
+    
+    navLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        hamburgerBtn.classList.remove('active');
+        navMenu.classList.remove('active');
+      });
+    });
+    
+    async function fetchFiveMStatus() {
+      const serverId = 'oqp8gv';
+      const statusElement = document.getElementById('player-count');
+      
+      try {
+        const response = await fetch(`https://servers-frontend.fivem.net/api/servers/single/${serverId}`);
+        if (!response.ok) throw new Error('Network response failed');
+        
+        const data = await response.json();
+        if (data && data.Data) {
+          const clients = data.Data.clients || 0;
+          const sv_maxclients = data.Data.sv_maxclients || 128;
+          statusElement.textContent = `SERVER ONLINE [${clients}/${sv_maxclients}]`;
+        } else {
+          statusElement.textContent = `SERVER ONLINE [0/128]`;
+        }
+      } catch (error) {
+        console.warn('FiveM API Fetch Error:', error);
+        statusElement.textContent = `SERVER ONLINE [0/128]`;
+      }
+    }
+    
+    fetchFiveMStatus();
+    setInterval(fetchFiveMStatus, 60000); // 60秒ごとに自動更新
+    
+    const canvas = document.getElementById('webgl-bg');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 300;
+    
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    
+    const count = 500;
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+    
+    const colorRed = new THREE.Color(0xff0055);
+    const colorBlue = new THREE.Color(0x00f0ff);
+    
+    for (let i = 0; i < count; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * 600;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 600;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 400;
+      
+      const c = Math.random() > 0.5 ? colorRed : colorBlue;
+      colors[i * 3] = c.r;
+      colors[i * 3 + 1] = c.g;
+      colors[i * 3 + 2] = c.b;
+    }
+    
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    
+    const material = new THREE.PointsMaterial({
+      size: 4,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.5,
+      blending: THREE.AdditiveBlending
+    });
+    
+    const particleSystem = new THREE.Points(geometry, material);
+    scene.add(particleSystem);
+    
+    function animate() {
+      requestAnimationFrame(animate);
+      particleSystem.rotation.y += 0.0005;
+      particleSystem.rotation.x += 0.0002;
+      renderer.render(scene, camera);
+    }
+    animate();
+    
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+    
+    // 4. GSAP スクロールアニメーション
+    gsap.registerPlugin(ScrollTrigger);
+    
+    gsap.to('.hero-content', {
+      y: 120,
+      opacity: 0.2,
+      scrollTrigger: {
+        trigger: '#hero',
+        start: 'top top',
+        end: 'bottom top',
+        scrub: true
+      }
+    });
+    
+    gsap.utils.toArray('.faction-card, .step-card, .link-card, .trailer-content').forEach(el => {
+      gsap.from(el, {
+        opacity: 0,
+        y: 40,
+        duration: 0.8,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: el,
+          start: "top 85%",
+          toggleActions: "play none none reverse"
+        }
+      });
+    });
+  </script>
+</body>
+</html>
