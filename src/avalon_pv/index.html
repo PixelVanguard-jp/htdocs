@@ -181,6 +181,16 @@
       50% { opacity: 0.3; }
     }
     
+    .player-countLabel {
+      margin-right: 6px;
+    }
+
+    @media (max-width: 600px) {
+      .player-countLabel {
+        display: none;
+      }
+    }
+
     .hamburger {
       display: none;
       width: 36px;
@@ -389,7 +399,7 @@
       z-index: 10;
       position: relative;
     }
-    
+
     .coupon-card {
       background: linear-gradient(135deg, rgba(255, 0, 85, 0.15), rgba(0, 240, 255, 0.15));
       border: 2px dashed var(--yellow-accent);
@@ -453,6 +463,19 @@
     .copy-btn:hover {
       background: #fff;
     }
+
+    @media (max-width: 600px) {
+      #coupon-section {
+        padding: 20px 20px;
+      }
+      .coupon-card {
+        padding: 10px 20px;
+      }
+      .coupon-code {
+        font-size: .8rem;
+      }
+    }
+
 
     /* ------------------------------------------------------------------ */
     /* FEATURES / CONTENTS SECTION (All in one)                          */
@@ -856,7 +879,7 @@
     <div class="nav-wrapper">
       <div class="server-status">
         <div class="status-dot"></div>
-        <span id="player-count">SERVER ONLINE [--/--]</span>
+        <span class="player-countWrap"><span class="player-countLabel">SERVER ONLINE</span><span id="player-count">[--/--]</span></span>
       </div>
       
       <button class="hamburger" id="hamburger-btn" aria-label="Toggle navigation">
@@ -1083,13 +1106,13 @@
         if (data && data.Data) {
           const clients = data.Data.clients ?? 0;
           const sv_maxclients = data.Data.sv_maxclients ?? 128;
-          statusElement.textContent = `SERVER ONLINE [${clients}/${sv_maxclients}]`;
+          statusElement.textContent = `[${clients}/${sv_maxclients}]`;
         } else {
-          statusElement.textContent = `SERVER ONLINE [0/128]`;
+          statusElement.textContent = `[-/128]`;
         }
       } catch (error) {
         console.warn('FiveM API Fetch Error:', error);
-        statusElement.textContent = `SERVER ONLINE [0/128]`;
+        statusElement.textContent = `[-/128]`;
       }
     }
     
