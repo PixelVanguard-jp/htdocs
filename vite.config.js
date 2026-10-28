@@ -31,7 +31,7 @@ export default defineConfig(({ mode }) => {
         input: {
           main: path.resolve(__dirname, 'src/index.html'),
           avalon: path.resolve(__dirname, 'src/avalon_pv/index.html'),
-          'avalon_pv/rule': path.resolve(__dirname, 'src/avalon_pv/rule.html'),
+          'avalon_pv/rule/': path.resolve(__dirname, 'src/avalon_pv/rule/index.html'),
         },
         plugins: [
           terser(),
