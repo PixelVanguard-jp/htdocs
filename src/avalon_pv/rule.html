@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="robots" content="index, follow">
+    <meta name="GPTBot" content="noindex, nofollow">
+    <meta name="ClaudeBot" content="noindex, nofollow">
+    <meta name="Google-Extended" content="noindex, nofollow">
+    <meta name="PerplexityBot" content="noindex, nofollow">
+    <meta name="CCBot" content="noindex, nofollow">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>規約・ルール - AVALON</title>
+    <!-- Three.js (index.html / AVALON世界観と統一) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        /* =========================================================
+           基本スタイル・背景（AVALONテーマ統一）
+           ========================================================= */
+        :root {
+            --bg-color: #0b0c10;
+            --panel-bg: rgba(31, 40, 51, 0.6);
+            --sidebar-bg: rgba(11, 12, 16, 0.85);
+            --text-color: #c5c6c7;
+            --heading-color: #ffffff;
+            --primary-color: #66fcf1;
+            --secondary-color: #45a29e;
+            --border-color: rgba(102, 252, 241, 0.2);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --hover-bg: rgba(69, 162, 158, 0.15);
+            --active-bg: rgba(102, 252, 241, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* WebGL Canvas */
+        #webgl-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* ヘッダー */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 32px;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: 65px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #fff;
+            font-size: 1.4rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .logo img {
+            height: 32px;
+            margin-right: 12px;
+        }
+
+        nav.header-nav a {
+            color: var(--text-color);
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+        }
+
+        nav.header-nav a:hover, nav.header-nav a.active {
+            color: var(--primary-color);
+        }
+
+        /* スマホ用ヘッダー・トグル */
+        .mobile-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-toggle-btn {
+            display: none;
+            background: rgba(31, 40, 51, 0.8);
+            border: 1px solid var(--border-color);
+            color: var(--primary-color);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .menu-toggle-btn:hover {
+            background: var(--hover-bg);
+        }
+
+        .mobile-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: var(--heading-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+
+        /* スマホ用オーバーレイ */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1005;
+        }
+
+        /* メインレイアウト構造 */
+        .layout-container {
+            display: flex;
+            flex: 1;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+            height: calc(100vh - 65px);
+        }
+
+        /* サイドバー（目次・タブ一覧） */
+        aside.sidebar {
+            width: 320px;
+            background: rgba(11, 12, 16, 0.6);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            padding: 24px;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+            z-index: 1010;
+        }
+
+        aside.sidebar h3 {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 8px;
+            letter-spacing: 1px;
+            text-shadow: 0 0 8px rgba(102, 252, 241, 0.3);
+        }
+
+        #nav-list {
+            list-style: none;
+        }
+
+        .tab-nav-item {
+            margin-bottom: 10px;
+        }
+
+        /* タブボタン */
+        .tab-link {
+            background: rgba(31, 40, 51, 0.5);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-color);
+            cursor: pointer;
+            text-align: left;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .tab-link:hover {
+            background: var(--hover-bg);
+            color: var(--primary-color);
+            border-color: var(--border-color);
+        }
+
+        .tab-link.active {
+            background: var(--active-bg);
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(102, 252, 241, 0.2);
+        }
+
+        .tab-link::after {
+            content: "▼";
+            font-size: 10px;
+            transition: transform 0.2s;
+            opacity: 0.7;
+        }
+
+        .tab-link.active::after {
+            transform: rotate(180deg);
+            opacity: 1;
+        }
+
+        /* TOCの見出しツリー */
+        .toc-list {
+            list-style: none;
+            padding-left: 12px;
+            margin-top: 8px;
+            margin-bottom: 12px;
+            border-left: 2px solid var(--secondary-color);
+            display: none;
+        }
+
+        .tab-nav-item.active .toc-list {
+            display: block;
+        }
+
+        .toc-list li {
+            margin: 4px 0;
+        }
+
+        .toc-list a {
+            font-size: 0.85rem;
+            color: #a0a5ac;
+            text-decoration: none;
+            display: block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.15s;
+        }
+
+        .toc-list a:hover {
+            background: var(--hover-bg);
+            color: var(--primary-color);
+        }
+
+        .toc-h1 { font-weight: bold; color: var(--heading-color) !important; }
+        .toc-h2 { padding-left: 10px !important; }
+        .toc-h3 { padding-left: 20px !important; font-size: 0.8rem !important; color: #808893 !important; }
+
+        /* メインコンテンツエリア */
+        main.main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            background: var(--panel-bg);
+            backdrop-filter: blur(10px);
+            margin: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* --------------------------------------------------
+           Google Docs出力コンテンツ内の装飾・スタイリング調整
+           -------------------------------------------------- */
+        .tab-pane h1 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 8px;
+            text-shadow: 0 0 10px rgba(102, 252, 241, 0.3);
+        }
+
+        .tab-pane h2 {
+            color: var(--heading-color);
+            font-size: 1.3rem;
+            margin: 28px 0 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .tab-pane h2::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 16px;
+            background: var(--secondary-color);
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+
+        .tab-pane h3 {
+            color: #dfe6e9;
+            font-size: 1.1rem;
+            margin: 20px 0 10px;
+        }
+
+        .tab-pane p {
+            margin-bottom: 14px;
+        }
+
+        .tab-pane ul, .tab-pane ol {
+            margin-bottom: 20px;
+            padding-left: 24px;
+        }
+
+        .tab-pane li {
+            margin-bottom: 6px;
+        }
+
+        .tab-pane ul li::marker { color: var(--primary-color); }
+        .tab-pane ol li::marker { color: var(--secondary-color); font-weight: bold; }
+
+        .tab-pane img {
+            max-width: 100%;
+            height: auto;
+            margin: 16px 0;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* テーブルスタイル・横スクロールレスポンシブ化 */
+        .tab-pane table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            display: block;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border: 1px solid var(--border-subtle);
+            border-radius: 4px;
+        }
+
+        .tab-pane th, .tab-pane td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-subtle);
+            text-align: left;
+            min-width: 120px;
+        }
+
+        .tab-pane th {
+            background-color: rgba(69, 162, 158, 0.2);
+            color: var(--primary-color);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .tab-pane tr:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        /* --------------------------------------------------
+           レスポンシブ（768px以下）
+           -------------------------------------------------- */
+        @media screen and (max-width: 768px) {
+            header {
+                padding: 12px 16px;
+            }
+
+            .menu-toggle-btn {
+                display: block;
+            }
+
+            nav.header-nav {
+                display: none; /* スマホ時はヘッダーナビを非表示 */
+            }
+
+            .layout-container {
+                height: calc(100vh - 65px);
+            }
+
+            aside.sidebar {
+                position: fixed;
+                top: 65px;
+                left: 0;
+                width: 280px;
+                height: calc(100vh - 65px);
+                transform: translateX(-100%);
+                box-shadow: 4px 0 16px rgba(0, 0, 0, 0.5);
+                background: rgba(11, 12, 16, 0.95);
+            }
+
+            body.sidebar-open aside.sidebar {
+                transform: translateX(0);
+            }
+
+            body.sidebar-open .sidebar-overlay {
+                display: block;
+            }
+
+            main.main-content {
+                margin: 12px;
+                padding: 20px;
+                width: calc(100% - 24px);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- WebGL背景用キャンバス -->
+    <canvas id="webgl-bg"></canvas>
+
+    <!-- ヘッダー -->
+    <header>
+        <div class="mobile-header-left">
+            <button class="menu-toggle-btn" id="menu-toggle" aria-label="メニューを開く">☰ 目次</button>
+            <a href="index.html" class="logo">
+                <img src="img/AVALON_logo.png" alt="AVALON Logo">
+                <span id="doc-main-title">AVALON</span>
+            </a>
+        </div>
+        <nav class="header-nav">
+            <a href="index.html">Home</a>
+            <a href="rule.html" class="active">Rules</a>
+        </nav>
+    </header>
+
+    <!-- スマホ時のサイドバーオーバーレイ -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- コンテンツエリア構造 -->
+    <div class="layout-container">
+        <!-- 左カラム：サイドバー（目次ツリー） -->
+        <aside class="sidebar" id="sidebar">
+            <h3>目次</h3>
+            <ul id="nav-list">
+                <li style="color: #888;">読み込み中...</li>
+            </ul>
+        </aside>
+
+        <!-- 右カラム：ドキュメント本文 -->
+        <main class="main-content" id="main-content">
+            <p>ドキュメントを読み込んでいます...</p>
+        </main>
+    </div>
+
+    <!-- WebGL (Three.js 背景アニメーション) -->
+    <script>
+        const canvas = document.getElementById('webgl-bg');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        const particleCount = 200;
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+
+        for (let i = 0; i < particleCount * 3; i++) {
+            positions[i] = (Math.random() - 0.5) * 10;
+        }
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+        const material = new THREE.PointsMaterial({
+            color: 0x66fcf1,
+            size: 0.03,
+            transparent: true,
+            opacity: 0.6
+        });
+
+        const particleSystem = new THREE.Points(geometry, material);
+        scene.add(particleSystem);
+
+        camera.position.z = 3;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            particleSystem.rotation.y += 0.001;
+            particleSystem.rotation.x += 0.0005;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+
+    <!-- Google Docs API / キャッシュ & レンダリングロジック -->
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwT3CbTQqZWQY_prW6XMFc8qaNLcD7cnTdYRvjqqB4rzl2QC2K7bF_8DPgfCB8pDqQ_rQ/exec';
+        
+        const CACHE_KEY_DATA = 'doc_cache_tabs_data_v3';
+        const CACHE_KEY_DATE = 'doc_cache_tabs_date_v3';
+
+        async function initViewer() {
+            const cachedData = localStorage.getItem(CACHE_KEY_DATA);
+            const localLastUpdated = localStorage.getItem(CACHE_KEY_DATE);
+            
+            let hasDisplayedCache = false;
+            if (cachedData) {
+                try {
+                    const tabs = JSON.parse(cachedData);
+                    renderUI(tabs);
+                    hasDisplayedCache = true;
+                } catch (e) {
+                    console.error('キャッシュのパースに失敗しました', e);
+                }
+            }
+
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+
+                if (data.status !== 'success') {
+                    console.error('APIエラー:', data.message);
+                    return;
+                }
+
+                // タイトルの反映
+                if (data.title) {
+                    document.title = `${data.title} - AVALON`;
+                    const docMainTitle = document.getElementById('doc-main-title');
+                    if (docMainTitle) docMainTitle.textContent = data.title;
+                }
+
+                const serverLastUpdated = data.lastUpdated;
+
+                if (!localLastUpdated || localLastUpdated !== serverLastUpdated) {
+                    localStorage.setItem(CACHE_KEY_DATA, JSON.stringify(data.tabs));
+                    localStorage.setItem(CACHE_KEY_DATE, serverLastUpdated);
+                    renderUI(data.tabs);
+                }
+            } catch (error) {
+                console.error('通信エラー:', error);
+                if (!hasDisplayedCache) {
+                    document.getElementById('main-content').innerHTML = '<p style="color:#f56c6c;">データの読み込みに失敗しました。ネットワーク接続を確認してください。</p>';
+                }
+            }
+        }
+
+        function renderUI(tabs) {
+            const navList = document.getElementById('nav-list');
+            const mainContent = document.getElementById('main-content');
+            
+            navList.innerHTML = '';
+            mainContent.innerHTML = '';
+
+            tabs.forEach((tab, index) => {
+                const isFirst = (index === 0);
+                const activeClass = isFirst ? 'active' : '';
+
+                // サイドバー用ナビゲーション項目
+                const navLi = document.createElement('li');
+                navLi.className = `tab-nav-item ${activeClass}`;
+                navLi.id = `nav-item-${tab.id}`;
+                
+                const tabButton = document.createElement('button');
+                tabButton.className = `tab-link ${activeClass}`;
+                tabButton.textContent = tab.title;
+                tabButton.dataset.target = tab.id;
+                
+                tabButton.addEventListener('click', () => {
+                    switchTab(tab.id);
+                    closeMobileSidebar();
+                });
+                navLi.appendChild(tabButton);
+
+                // サブ見出し（目次ツリー）が存在する場合
+                if (tab.subHeadings && tab.subHeadings.length > 0) {
+                    const subUl = document.createElement('ul');
+                    subUl.className = 'toc-list';
+                    
+                    tab.subHeadings.forEach(sub => {
+                        const subLi = document.createElement('li');
+                        const subA = document.createElement('a');
+                        subA.href = `#${sub.id}`;
+                        subA.textContent = sub.title;
+                        subA.className = `toc-${sub.level}`;
+                        
+                        subA.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            switchTab(tab.id);
+                            closeMobileSidebar();
+                            
+                            const targetElement = document.getElementById(sub.id);
+                            if (targetElement) {
+                                targetElement.scrollIntoView({ behavior: 'smooth' });
+                            }
+                        });
+                        
+                        subLi.appendChild(subA);
+                        subUl.appendChild(subLi);
+                    });
+                    navLi.appendChild(subUl);
+                }
+                navList.appendChild(navLi);
+
+                // メインコンテンツ用パネル
+                const paneDiv = document.createElement('div');
+                paneDiv.id = tab.id;
+                paneDiv.className = `tab-pane ${activeClass}`;
+                paneDiv.innerHTML = tab.html;
+                mainContent.appendChild(paneDiv);
+            });
+        }
+
+        function switchTab(targetId) {
+            document.querySelectorAll('.tab-nav-item').forEach(item => {
+                const btn = item.querySelector('.tab-link');
+                if (btn && btn.dataset.target === targetId) {
+                    item.classList.add('active');
+                    btn.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                    if (btn) btn.classList.remove('active');
+                }
+            });
+
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                if (pane.id === targetId) {
+                    pane.classList.add('active');
+                } else {
+                    pane.classList.remove('active');
+                }
+            });
+        }
+
+        // スマホ用サイドバー開閉機能
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+        function toggleMobileSidebar() {
+            document.body.classList.toggle('sidebar-open');
+        }
+
+        function closeMobileSidebar() {
+            document.body.classList.remove('sidebar-open');
+        }
+
+        if (menuToggle) {
+            menuToggle.addEventListener('click', toggleMobileSidebar);
+        }
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', closeMobileSidebar);
+        }
+
+        // 初期化実行
+        initViewer();
+    </script>
+</body>
+</html>
