@@ -427,6 +427,8 @@
             }
         }
     </style>
+    <link rel="shortcut icon" href="../img/AVALON_logo.png" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="../img/AVALON_logo.png" />
 </head>
 <body>
 
@@ -438,7 +440,7 @@
         <div class="mobile-header-left">
             <button class="menu-toggle-btn" id="menu-toggle" aria-label="メニューを開く">☰ 目次</button>
             <a href="index.html" class="logo">
-                <img src="img/AVALON_logo.png" alt="AVALON Logo">
+                <img src="../img/AVALON_logo.png" alt="AVALON Logo">
                 <span id="doc-main-title">AVALON</span>
             </a>
         </div>
@@ -546,11 +548,11 @@
                 }
 
                 // タイトルの反映
-                if (data.title) {
-                    document.title = `${data.title} - AVALON`;
-                    const docMainTitle = document.getElementById('doc-main-title');
-                    if (docMainTitle) docMainTitle.textContent = data.title;
-                }
+                // if (data.title) {
+                //     document.title = `${data.title} - AVALON`;
+                //     const docMainTitle = document.getElementById('doc-main-title');
+                //     if (docMainTitle) docMainTitle.textContent = data.title;
+                // }
 
                 const serverLastUpdated = data.lastUpdated;
 
